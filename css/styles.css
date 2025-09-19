@@ -1,0 +1,143 @@
+/* Base styles */
+body {
+    font-family: 'Cairo', 'Inter', sans-serif;
+    direction: ltr;
+}
+
+/* RTL support */
+[dir="rtl"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #F59E0B;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #D97706;
+}
+
+.btn-secondary {
+    background-color: #1E3A8A;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.btn-secondary:hover {
+    background-color: #1E40AF;
+}
+
+.btn-outline {
+    background-color: white;
+    border: 1px solid #1E3A8A;
+    color: #1E3A8A;
+    transition: all 0.3s ease-in-out;
+}
+
+.btn-outline:hover {
+    background-color: #1E3A8A;
+    color: white;
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Forms */
+.input-field {
+    border: 1px solid #F3F4F6;
+    border-radius: 4px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.input-field:focus {
+    border-color: #1E3A8A;
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.2);
+}
+
+/* Status badges */
+.badge-approved {
+    background-color: #10B981;
+    color: white;
+}
+
+.badge-pending {
+    background-color: #F59E0B;
+    color: white;
+}
+
+.badge-rejected {
+    background-color: #EF4444;
+    color: white;
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Calendar events */
+.fc-event-approved {
+    background-color: #10B981;
+    border-color: #10B981;
+}
+
+.fc-event-pending {
+    background-color: #F59E0B;
+    border-color: #F59E0B;
+}
+
+.fc-event-rejected {
+    background-color: #EF4444;
+    border-color: #EF4444;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .mobile-stack {
+        flex-direction: column;
+    }
+    
+    .mobile-full-width {
+        width: 100%;
+    }
+    
+    .mobile-text-center {
+        text-align: center;
+    }
+}
+
+/* Dark mode (optional) */
+.dark-mode {
+    background-color: #1F2937;
+    color: #F3F4F6;
+}
+
+.dark-mode .card {
+    background-color: #374151;
+    color: #F3F4F6;
+}
+
+.dark-mode .input-field {
+    background-color: #4B5563;
+    border-color: #6B7280;
+    color: #F3F4F6;
+}

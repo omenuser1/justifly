@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistante - Justifly</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        /* ===== متغيرات الألوان ===== */
+        :root {
+            /* Dark Mode (الافتراضي) */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.1);
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --nav-bg: rgba(15, 23, 42, 0.8);
+            --nav-border: rgba(31, 41, 55, 0.8);
+            --select-bg: #1f2937;
+            --select-border: #374151;
+            --accent-color: #667eea;
+            --accent-hover: #7c3aed;
+            --success-color: #10b981;
+            --shape-bg: rgba(102, 126, 234, 0.2);
+            --shape-bg-2: rgba(118, 75, 162, 0.2);
+            --shape-bg-3: rgba(240, 147, 251, 0.2);
+            --shape-bg-4: rgba(16, 185, 129, 0.2);
+            --code-bg: rgba(0, 0, 0, 0.3);
+            --code-text: #e2e8f0;
+        }
+
+        /* Light Mode - مستوحى من الصفحة الجديدة */
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(241, 245, 249, 0.9);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --nav-border: rgba(241, 245, 249, 0.9);
+            --select-bg: #f1f5f9;
+            --select-border: #e2e8f0;
+            --accent-color: #667eea;
+            --accent-hover: #7c3aed;
+            --success-color: #10b981;
+            --shape-bg: rgba(102, 126, 234, 0.1);
+            --shape-bg-2: rgba(118, 75, 162, 0.1);
+            --shape-bg-3: rgba(240, 147, 251, 0.1);
+            --shape-bg-4: rgba(16, 185, 129, 0.1);
+            --code-bg: rgba(0, 0, 0, 0.05);
+            --code-text: #1e293b;
+        }
+
+        /* ===== أنماط عامة ===== */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .gradient-bg { 
+            background: var(--gradient-primary); 
+        }
+        
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+        
+        .chat-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .chat-main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .chat-sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            padding: 1rem;
+            overflow-y: auto;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .chat-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            display: flex;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.user {
+            flex-direction: row-reverse;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .message.bot .message-avatar {
+            background: var(--gradient-primary);
+        }
+        
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .message-content {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            position: relative;
+            font-size: 0.9rem;
+        }
+        
+        .message.bot .message-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        
+        .message.user .message-content {
+            background: var(--gradient-primary);
+            color: white;
+        }
+        
+        .message-input-container {
+            padding: 1rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .chat-input {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: var(--bg-card-hover);
+        }
+        
+        .chat-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .send-button {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+        
+        .send-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .send-button:hover::before {
+            left: 100%;
+        }
+        
+        .send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .quick-action {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateX(5px);
+        }
+        
+        .quick-action h4 {
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quick-action p {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 0.4rem;
+            padding: 0.75rem;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .gradient-text {
+            background: var(--gradient-secondary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .feature-card h5 {
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .feature-card li {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 0.2rem 0;
+            padding-left: 0.75rem;
+            position: relative;
+        }
+        
+        .feature-card li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+        }
+        
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) translateX(20px) rotate(120deg); }
+            66% { transform: translateY(20px) translateX(-20px) rotate(240deg); }
+        }
+        
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success-color);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+        
+        /* ===== السويتش (Toggle Switch) ===== */
+        .theme-switch-nav {
+            display: flex;
+            align-items: center;
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 3px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-left: 10px;
+        }
+
+        .theme-label {
+            margin: 0 5px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-card);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
+        
+        /* Code styling */
+        .bg-gray-800 {
+            background-color: var(--code-bg) !important;
+        }
+        
+        .text-red-400 {
+            color: #f87171 !important;
+        }
+        
+        .text-blue-400 {
+            color: #60a5fa !important;
+        }
+        
+        .text-purple-400 {
+            color: #a78bfa !important;
+        }
+        
+        .text-green-400 {
+            color: #4ade80 !important;
+        }
+        
+        .text-yellow-400 {
+            color: #facc15 !important;
+        }
+        
+        .border-red-500 {
+            border-color: #ef4444 !important;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .chat-sidebar {
+                width: 220px;
+            }
+            
+            .message-content {
+                max-width: 90%;
+                font-size: 0.85rem;
+            }
+            
+            .chat-header h2 {
+                font-size: 1.25rem;
+            }
+            
+            .feature-card h5 {
+                font-size: 0.8rem;
+            }
+            
+            .feature-card li {
+                font-size: 0.7rem;
+            }
+            
+            .theme-switch-nav {
+                padding: 2px;
+            }
+            
+            .theme-label {
+                font-size: 12px;
+                margin: 0 3px;
+            }
+            
+            .switch {
+                width: 30px;
+                height: 15px;
+            }
+            
+            .slider:before {
+                height: 11px;
+                width: 11px;
+                left: 2px;
+                bottom: 2px;
+            }
+            
+            input:checked + .slider:before {
+                transform: translateX(15px);
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .chat-main {
+                flex-direction: column;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+                height: 180px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 0.75rem;
+                overflow-x: auto;
+                display: flex;
+                gap: 0.75rem;
+            }
+            
+            .feature-card, .quick-action {
+                min-width: 180px;
+                margin-bottom: 0;
+            }
+            
+            .message-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .chat-input-container {
+                padding: 0.75rem;
+            }
+            
+            .chat-messages {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating shapes for visual interest -->
+    <div class="floating-shape w-96 h-96 top-10 right-10 opacity-20"></div>
+    <div class="floating-shape w-64 h-64 bottom-10 left-10 opacity-20" style="animation-delay: 5s;"></div>
+    
+    <!-- Main Chat Container -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center mr-3">
+                <i class="fas fa-robot text-white text-lg"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold gradient-text">AI Assistante Justifly</h2>
+                <p class="flex items-center text-sm" style="color: var(--text-secondary);">
+                    <span class="pulse-dot"></span>
+                    En ligne - Prête à vous aider
+                </p>
+            </div>
+            
+            <!-- Theme Switch -->
+            <div class="theme-switch-nav">
+                <span class="theme-label"><i class="fas fa-moon"></i></span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-label"><i class="fas fa-sun"></i></span>
+            </div>
+        </div>
+        
+        <div class="chat-main">
+            <!-- Sidebar -->
+            <div class="chat-sidebar">
+                <h3 class="text-base font-semibold mb-3" style="color: var(--text-primary);">Fonctionnalités</h3>
+                
+                <div class="feature-card">
+                    <h5><i class="fas fa-user-graduate text-blue-400"></i> Étudiants</h5>
+                    <ul>
+                        <li>Justifier une absence</li>
+                        <li>Consulter mes absences</li>
+                        <li>Télécharger des documents</li>
+                        <li>Modifier mon profil</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h5><i class="fas fa-chalkboard-teacher text-purple-400"></i> Enseignants</h5>
+                    <ul>
+                        <li>Voir les absences</li>
+                        <li>Télécharger justificatifs</li>
+                        <li>Filtrer par période</li>
+                        <li>Recevoir des notifications</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h5><i class="fas fa-user-shield text-green-400"></i> Admins</h5>
+                    <ul>
+                        <li>Gérer les utilisateurs</li>
+                        <li>Valider les absences</li>
+                        <li>Envoyer des notifications</li>
+                        <li>Générer des rapports</li>
+                    </ul>
+                </div>
+                
+                <h3 class="text-base font-semibold mb-3 mt-4" style="color: var(--text-primary);">Questions Rapides</h3>
+                
+                <div class="quick-action" onclick="askQuestion('Comment justifier une absence?')">
+                    <h4>Comment justifier une absence?</h4>
+                    <p>Guide étape par étape</p>
+                </div>
+                
+                <div class="quick-action" onclick="askQuestion('Comment consulter mes absences?')">
+                    <h4>Comment consulter mes absences?</h4>
+                    <p>Votre historique complet</p>
+                </div>
+                
+                <div class="quick-action" onclick="askQuestion('Quels documents sont acceptés?')">
+                    <h4>Quels documents sont acceptés?</h4>
+                    <p>Liste des justificatifs valides</p>
+                </div>
+            </div>
+            
+            <!-- Chat Content -->
+            <div class="chat-content">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Welcome message -->
+                    <div class="message bot">
+                        <div class="message-avatar">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div class="message-content">
+                            <p>Bonjour ! Je suis l'assistante IA de Justifly. Je suis là pour vous aider avec toutes vos questions concernant la gestion des absences universitaires.</p>
+                            <br>
+                            <p><strong>Comment puis-je vous aider ?</strong></p>
+                            <ul>
+                                <li>Informations sur les fonctionnalités</li>
+                                <li>Guide d'utilisation pas à pas</li>
+                                <li>Réponses à vos questions techniques</li>
+                                <li>Support pour les problèmes courants</li>
+                            </ul>
+                            <br>
+                            <p>N'hésitez pas à me poser votre question !</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-container">
+                    <div class="flex gap-3">
+                        <input 
+                            type="text" 
+                            id="userInput" 
+                            class="chat-input" 
+                            placeholder="Posez votre question sur Justifly..."
+                            onkeypress="if(event.key === 'Enter') sendMessage()"
+                        >
+                        <button class="send-button" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ===== التحكم في الوضع =====
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // تحقق من الوضع المحفوظ في المتصفح
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', currentTheme);
+        themeToggle.checked = currentTheme === 'light';
+
+        // عند التبديل
+        themeToggle.addEventListener('change', () => {
+            const theme = themeToggle.checked ? 'light' : 'dark';
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        });
+        
+        // Informations sur l'application
+        const appInfo = {
+            description: `L'application de gestion des absences est un système intégral conçu pour simplifier et automatiser la gestion des absences des étudiants au sein d'une université. Elle permet aux étudiants, aux enseignants et aux administrateurs de gérer et de suivre les absences de manière efficace et transparente.`,
+            roles: {
+                student: `
+                <h4 class="text-lg font-semibold mb-2">🎓 Pour les Étudiants</h4>
+                <ul class="space-y-1">
+                    <li>• Soumission des justifications d'absence</li>
+                    <li>• Modification du profil personnel</li>
+                    <li>• Consultation des absences et leur statut</li>
+                    <li>• Téléversement de fichiers justificatifs</li>
+                    <li>• Suivi en temps réel des demandes</li>
+                </ul>
+                `,
+                teacher: `
+                <h4 class="text-lg font-semibold mb-2">👨‍🏫 Pour les Enseignants</h4>
+                <ul class="space-y-1">
+                    <li>• Consultation des absences des étudiants</li>
+                    <li>• Filtrage des absences par nom, date ou période</li>
+                    <li>• Téléchargement des justifications acceptées</li>
+                    <li>• Réception de notifications instantanées</li>
+                    <li>• Gestion des listes de présence</li>
+                </ul>
+                `,
+                admin: `
+                <h4 class="text-lg font-semibold mb-2">🛡️ Pour les Administrateurs</h4>
+                <ul class="space-y-1">
+                    <li>• Création et gestion des comptes utilisateurs</li>
+                    <li>• Validation des absences (acceptation/rejet)</li>
+                    <li>• Modification des profils utilisateurs</li>
+                    <li>• Envoi de notifications automatisées</li>
+                    <li>• Génération de rapports et statistiques</li>
+                </ul>
+                `
+            },
+            process: `
+            <h4 class="text-lg font-semibold mb-2">⚙️ Processus Clés</h4>
+            <ul class="space-y-1">
+                <li>1. <strong>Soumission</strong> : Les étudiants soumettent leurs justifications via l'interface intuitive</li>
+                <li>2. <strong>Vérification</strong> : Les enseignants consultent et vérifient les absences</li>
+                <li>3. <strong>Décision</strong> : Les administrateurs prennent les décisions finales</li>
+                <li>4. <strong>Notification</strong> : Le système envoie des notifications à chaque étape</li>
+            </ul>
+            `
+        };
+        
+        // Questions fréquentes et réponses
+        const faqs = {
+            "comment justifier une absence": `
+            <h4 class="text-lg font-semibold mb-2">📝 Comment justifier une absence ?</h4>
+            <ol class="space-y-2">
+                <li><strong>1. Connectez-vous</strong> à votre compte étudiant</li>
+                <li><strong>2. Accédez</strong> à la section "Justifier une absence"</li>
+                <li><strong>3. Sélectionnez</strong> la période concernée</li>
+                <li><strong>4. Téléchargez</strong> votre fichier justificatif (PDF, image, etc.)</li>
+                <li><strong>5. Soumettez</strong> la justification</li>
+                <li><strong>6. Suivez</strong> le statut de votre demande en temps réel</li>
+            </ol>
+            <p class="mt-3 text-sm" style="color: var(--text-muted);">💡 <em>Conseil : Assurez-vous que votre justificatif est clair, lisible et correspond aux dates d'absence déclarées.</em></p>
+            `,
+            
+            "comment consulter mes absences": `
+            <h4 class="text-lg font-semibold mb-2">📊 Comment consulter mes absences ?</h4>
+            <ol class="space-y-2">
+                <li><strong>1. Connectez-vous</strong> à votre compte étudiant</li>
+                <li><strong>2. Cliquez</strong> sur "Mes absences" dans le tableau de bord</li>
+                <li><strong>3. Consultez</strong> la liste complète de vos absences</li>
+                <li><strong>4. Filtrez</strong> par période, statut ou matière si nécessaire</li>
+                <li><strong>5. Téléchargez</strong> les justificatifs approuvés</li>
+            </ol>
+            <p class="mt-3 text-sm" style="color: var(--text-muted);">💡 <em>Les statuts possibles : En attente, Approuvée, Rejetée, Nécessite plus d'informations</em></p>
+            `,
+            
+            "quels documents sont acceptés": `
+            <h4 class="text-lg font-semibold mb-2">📄 Quels types de documents sont acceptés ?</h4>
+            <div class="space-y-3">
+                <div>
+                    <h5 class="font-semibold text-blue-400">Documents Médicaux :</h5>
+                    <ul class="ml-4 space-y-1">
+                        <li>• Certificat médical</li>
+                        <li>Ordonnance de médecin</li>
+                        <li>Attestation d'hospitalisation</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-purple-400">Documents Administratifs :</h5>
+                    <ul class="ml-4 space-y-1">
+                        <li>• Convocation officielle</li>
+                        <li>• Attestation de décès (famille proche)</li>
+                        <li>• Ordre de mission professionnelle</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-semibold text-green-400">Autres :</h5>
+                    <ul class="ml-4 space-y-1">
+                        <li>• Attestation de participation à un événement</li>
+                        <li>• Justificatif de transport (grève, retard)</li>
+                    </ul>
+                </div>
+            </div>
+            <p class="mt-3 text-sm" style="color: var(--text-muted);">💡 <em>Tous les documents doivent être datés et correspondre à la période d'absence déclarée.</em></p>
+            `,
+            
+            "comment modifier mon profil": `
+            <h4 class="text-lg font-semibold mb-2">👤 Comment modifier mon profil ?</h4>
+            <ol class="space-y-2">
+                <li><strong>1. Connectez-vous</strong> à votre compte Justifly</li>
+                <li><strong>2. Cliquez</strong> sur votre photo de profil en haut à droite</li>
+                <li><strong>3. Sélectionnez</strong> "Mon profil" dans le menu déroulant</li>
+                <li><strong>4. Modifiez</strong> les informations nécessaires :
+                    <ul class="ml-4 mt-1">
+                        <li>• Informations personnelles (nom, prénom, email)</li>
+                        <li>• Photo de profil</li>
+                        <li>• Informations de contact</li>
+                        <li>• Mot de passe</li>
+                    </ul>
+                </li>
+                <li><strong>5. Cliquez</strong> sur "Enregistrer les modifications"</li>
+            </ol>
+            <p class="mt-3 text-sm" style="color: var(--text-muted);">💡 <em>Votre mot de passe doit contenir au moins 8 caractères avec des majuscules, minuscules et chiffres.</em></p>
+            `,
+            
+            "comment fonctionne la validation": `
+            <h4 class="text-lg font-semibold mb-2">✅ Comment fonctionne le processus de validation ?</h4>
+            <div class="space-y-3">
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-lg">
+                    <h5 class="font-semibold text-blue-400">Étape 1 : Soumission</h5>
+                    <p class="text-sm">L'étudiant soumet sa justification avec les documents nécessaires</p>
+                </div>
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-lg">
+                    <h5 class="font-semibold text-purple-400">Étape 2 : Vérification</h5>
+                    <p class="text-sm">L'enseignant concerné vérifiez la demande et les documents</p>
+                </div>
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-lg">
+                    <h5 class="font-semibold text-green-400">Étape 3 : Décision</h5>
+                    <p class="text-sm">L'administrateur prend la décision finale (approuve/rejette)</p>
+                </div>
+                <div class="bg-gray-800 bg-opacity-50 p-3 rounded-lg">
+                    <h5 class="font-semibold text-yellow-400">Étape 4 : Notification</h5>
+                    <p class="text-sm">Le système notifie automatiquement toutes les parties concernées</p>
+                </div>
+            </div>
+            <p class="mt-3 text-sm" style="color: var(--text-muted);">⏱️ <em>Le processus complet prend généralement 24-48h selon la complexité du cas.</em></p>
+            `
+        };
+        
+        function addMessage(content, isUser = false) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'message-avatar';
+            avatarDiv.innerHTML = isUser ? '<i class="fas fa-user text-white"></i>' : '<i class="fas fa-robot text-white"></i>';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = content;
+            
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typingIndicator';
+            
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'message-avatar';
+            avatarDiv.innerHTML = '<i class="fas fa-robot text-white"></i>';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+            
+            typingDiv.appendChild(avatarDiv);
+            typingDiv.appendChild(contentDiv);
+            messagesContainer.appendChild(typingDiv);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            return typingDiv;
+        }
+        
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, true);
+            
+            // Clear input
+            input.value = '';
+            
+            // Show typing indicator
+            const typingIndicator = showTypingIndicator();
+            
+            try {
+                // Check for quick actions and FAQs first
+                const lowerMessage = message.toLowerCase();
+                let response = '';
+                
+                // Check for specific keywords
+                if (lowerMessage.includes('étudiant') || lowerMessage.includes('student')) {
+                    response = appInfo.roles.student;
+                } 
+                else if (lowerMessage.includes('enseignant') || lowerMessage.includes('prof') || lowerMessage.includes('teacher')) {
+                    response = appInfo.roles.teacher;
+                } 
+                else if (lowerMessage.includes('admin') || lowerMessage.includes('administrateur')) {
+                    response = appInfo.roles.admin;
+                }
+                else if (lowerMessage.includes('processus') || lowerMessage.includes('fonctionnement') || lowerMessage.includes('marche à suivre')) {
+                    response = appInfo.process;
+                }
+                else {
+                    // Check FAQs
+                    for (const [question, answer] of Object.entries(faqs)) {
+                        if (lowerMessage.includes(question)) {
+                            response = answer;
+                            break;
+                        }
+                    }
+                }
+                
+                // If no specific response found, use general description or API
+                if (!response) {
+                    if (lowerMessage.includes('application') || lowerMessage.includes('système') || 
+                        lowerMessage.includes('justifly') || lowerMessage.includes('absence') ||
+                        lowerMessage.includes('gestion') || lowerMessage.includes('université')) {
+                        
+                        response = `
+                        <h4 class="text-lg font-semibold mb-3">🎓 À propos de Justifly</h4>
+                        <p>${appInfo.description}</p>
+                        <br>
+                        ${appInfo.roles.student}
+                        ${appInfo.roles.teacher}
+                        ${appInfo.roles.admin}
+                        ${appInfo.process}
+                        <p class="mt-3 text-sm" style="color: var(--text-muted);">💡 <em>Pour des questions plus spécifiques, n'hésitez pas à demander !</em></p>
+                        `;
+                    } else {
+                        // Use API for general questions
+                        try {
+                            const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': 'Bearer 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',
+                                    'HTTP-Referer': 'https://www.sitename.com',
+                                    'X-Title': 'Gestion des Absences',
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    model: 'deepseek/deepseek-r1:free',
+                                    messages: [
+                                        {
+                                            role: 'system',
+                                            content: `Vous êtes un assistant utile pour une application de gestion des absences universitaires nommée Justifly. 
+                                            Répondez aux questions générales, mais pour les questions spécifiques à l'application,
+                                            référez-vous aux informations suivantes: ${JSON.stringify(appInfo)}`
+                                        },
+                                        { role: 'user', content: message }
+                                    ],
+                                }),
+                            });
+                            
+                            const data = await apiResponse.json();
+                            response = data.choices?.[0]?.message?.content || 
+                                'Désolé, je n\'ai pas pu obtenir de réponse. Veuillez réessayer.';
+                            
+                        } catch (error) {
+                            console.error('API Error:', error);
+                            response = `
+                                <div class="bg-red-900 bg-opacity-20 border border-red-500 rounded-lg p-4">
+                                    <h5 class="text-red-400 font-semibold mb-2">⚠️ Erreur de connexion</h5>
+                                    <p>Désolé, une erreur est survenue lors de la communication avec le service externe.</p>
+                                    <p class="text-sm mt-2">Voici les informations sur Justifly :</p>
+                                    ${marked.parse(appInfo.description)}
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                
+                // Remove typing indicator and add response
+                setTimeout(() => {
+                    removeTypingIndicator();
+                    addMessage(response);
+                }, 1000 + Math.random() * 1000); // Random delay between 1-2 seconds
+                
+            } catch (error) {
+                console.error('Error:', error);
+                removeTypingIndicator();
+                addMessage(`
+                    <div class="bg-red-900 bg-opacity-20 border border-red-500 rounded-lg p-4">
+                        <h5 class="text-red-400 font-semibold mb-2">⚠️ Erreur</h5>
+                        <p>Désolé, une erreur inattendue est survenue. Veuillez réessayer.</p>
+                    </div>
+                `);
+            }
+        }
+        
+        function askQuestion(question) {
+            document.getElementById('userInput').value = question;
+            sendMessage();
+        }
+        
+        // Allow Enter key to send message
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
